@@ -14,4 +14,5 @@ Commands:
 
 /bh placed : Show how many blocks you placed (You must start counting first)
 
-[MEDIA=youtube]GcL9a9CFIsc[/MEDIA]
+Video :
+https://www.youtube.com/watch?v=GcL9a9CFIsc
