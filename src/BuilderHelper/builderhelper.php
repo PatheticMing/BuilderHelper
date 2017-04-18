@@ -9,57 +9,74 @@ use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
-use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\utils\TextFormat as C;
 
 class builderhelper extends PluginBase implements Listener {
     
+    private $bh = C::AQUA . "[BuilderHelper]" . C::RESET;
     private $pcount;
-    private $id;
     private $count;
+    private $id;
+    private $checkid;
 
     public function onEnable() {
         $this->getServer()->getPluginManager()->registerEvents($this,$this);
         $this->id = NULL;
-        $this->getLogger()->info(C::GREEN . "Loaded!");
+        $this->getLogger()->info(C::GOLD . "Loaded!");
     }
     
-    public function onId(PlayerDropItemEvent $event) {
-        $player = $event->getPlayer();
-        if(isset($this->pcount)) {
-            $this->id = $event->getItem()->getId();
-            $player->sendMessage(C::GREEN . "Started counting " . $this->pcount . " blocks!");
-        }
+    public function isGettingID() {
+        return isset($this->checkid);
     }
+
 
     public function blockPlaceCount(BlockPlaceEvent $event) {
         $player = $event->getPlayer();
-        if(isset ($this->pcount)) {
-            $id = $event->getBlock()->getId();
-                if($id !== $this->id) {
-                    $this->count--;
-                    $this->count++;
+        if($this->isGettingID()) {
+                $this->id = $event->getBlock()->getId();
+                $player->sendMessage($this->bh . C::GREEN . "Started counting " . $this->pcount . " blocks!");
+                $event->setCancelled(true);
+           }
+        if(isset ($this->pcount) && isset($this->id)) {
+            if($this->isGettingID()) {
+                unset($this->checkid);
                 } else {
-                    $this->count++;
+                    $id = $event->getBlock()->getId();
+                    if($id !== $this->id) {
+                        $player->sendTip(C::YELLOW . "You placed " . C::LIGHT_PURPLE . $this->count . C::YELLOW . " / " . C::LIGHT_PURPLE . $this->pcount . C::YELLOW . "blocks!" );
+                    } else {
+                        $this->count++;
+                        $player->sendTip(C::YELLOW . "You placed " . C::LIGHT_PURPLE . $this->count . C::YELLOW . " / " . C::LIGHT_PURPLE . $this->pcount . C::YELLOW . "blocks!" );
+                    }
+                    if($this->count == $this->pcount) {
+                        $player->sendMessage($this->bh. C:: GOLD . "You have placed " . $this->count . " blocks!");
+                        $this->count = NULL;
+                        unset($this->pcount);
+                        unset($this->id);
                 }
-                if($this->count == $this->pcount) {
-                    $player->sendMessage(C::AQUA . "[BuilderHelper]" . C:: GOLD . "You have placed " . $this->count . " blocks!");
-                    unset($this->pcount);
-                    unset($this->count);
-                    unset($this->id);
-                    }                  
             }
+        }
     }
     
     public function blockBreakCount(BlockBreakEvent $event) {
-        if(isset($this->pcount)) {
+        $player = $event->getPlayer();
+        if(isset($this->pcount) && isset($this->id)) {
             $id = $event->getBlock()->getId();
                 if(isset($this->id)) {
                     if($id === $this->id) {
-                        $this->count--;
+                        if($this->count <= 0) {
+                            $this->count = 0;
+                            $player->sendTip(C::YELLOW . "You placed " . C::LIGHT_PURPLE . $this->count . C::YELLOW . " / " . C::LIGHT_PURPLE . $this->pcount . C::YELLOW . "blocks!" );
+                        } else {
+                            $this->count--;
+                            $this->count++;
+                            $this->count--;
+                            $player->sendTip(C::YELLOW . "You placed " . C::LIGHT_PURPLE . $this->count . C::YELLOW . " / " . C::LIGHT_PURPLE . $this->pcount . C::YELLOW . "blocks!" );
+                        }
                     } else {
                         $this->count--;
                         $this->count++;
+                        $player->sendTip(C::YELLOW . "You placed " . C::LIGHT_PURPLE . $this->count . C::YELLOW . " / " . C::LIGHT_PURPLE . $this->pcount . C::YELLOW . "blocks!" );
                     }
                 }
         }
@@ -70,25 +87,33 @@ class builderhelper extends PluginBase implements Listener {
             if(strtolower($command->getName() == "bh")) {
                 switch($args[0]) {
                     case "pos":
-                        $x = round($sender->getX());
-                        $y = round($sender->getY());
-                        $z = round($sender->getZ());
-                        $sender->sendMessage(C::AQUA . "You are at" . C::RED . $x . C::AQUA . "," . C::RED . $y .  C:: AQUA . "," . C::RED .  $z);
+                        $x = intval($sender->getX());
+                        $y = intval($sender->getY());
+                        $z = intval($sender->getZ());
+                        $sender->sendMessage($this->bh . C::AQUA . "You are at" . C::RED . $x . C::AQUA . "," . C::RED . $y .  C:: AQUA . "," . C::RED .  $z);
                         break;
                     case "placed":
                         if(isset($this->count)) {
-                        $sender->sendMessage(C::AQUA . "[BuilderHelper]" . C::GOLD . "You placed " . $this->count . "blocks!");
+                        $sender->sendMessage($this->bh . C::GOLD . "You placed " . $this->count . "blocks!");
                         } else {
-                            $sender->sendMessage(C::RED . "You haven't start to count yet!");
+                            $sender->sendMessage($this->bh . C::RED . "You haven't start to count yet!");
                         }
                         break;
                     case "start":
                         if(count($args) < 2) {
-                            $sender->sendMessage(C::RED . "Please enter how many blocks you want to place!");
+                            $sender->sendMessage($this->bh . C::RED . "Please enter how many blocks you want to place!");
                         } else {
                                 $this->pcount = $args[1];
-                                $sender->sendMessage(C::GOLD . "Drop the block to let me know the block id!");
+                                $this->checkid = 1;
+                                $sender->sendMessage($this->bh . C::GOLD . "Place the block to let me know the block id!");
                         }
+                        break;
+                    NULL :
+                        $sender->sendMessage(C::YELLOW . "----------" . C::GREEN . "BuilderHelper" . C::YELLOW . "----------");
+                        $sender->sendMessage(C::AQUA . "/bh : Show the help list");
+                        $sender->sendMessage(C::AQUA . "/bh pos : get your position");
+                        $sender->sendMessage(C::AQUA . "/bh start <counts> : Tell you to stop before you build < counts");
+                        $sender->sendMessage(C::AQUA . "/bh placed : Check how many blocks you placed");
                         break;
                     default :
                         $sender->sendMessage(C::YELLOW . "----------" . C::GREEN . "BuilderHelper" . C::YELLOW . "----------");
