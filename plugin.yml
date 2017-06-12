@@ -1,7 +1,7 @@
 name: BuilderHelper
 author: XdmingXD
 main: BuilderHelper\builderhelper
-version: 1.0.3
+version: 1.0.4
 api: [2.0.0 , 3.0.0-ALPHA4 , 3.0.0-ALPHA5]
 
 commands: 
@@ -17,12 +17,12 @@ commands:
     description: "Start to count how many blocks you want to place"
     permission: "yolo.command.start"
     usage: "/bh start <counts>"
-  bh placed:
-    description: "show your current position"
-    permission: "yolo.command.pos"
-    usage: "/bh pos"
+  bh stop:
+    description: "Stop counting blocks"
+    permission: "yolo.command.stop"
+    usage: "/bh stop"
 permission:
-    yolo.command.placed:
+    yolo.command.bh:
         default: true
         description: "Show the help list of builderhelper"
     yolo.command.pos:
@@ -31,7 +31,7 @@ permission:
     yolo.command.start:
         default: true
         description: "Start to count how many blocks you want to place"
-    yolo.command.placed:
+    yolo.command.stop:
         default: true
-        description: "show your current position"
+        description: "Stop counting blocks"
 ---
