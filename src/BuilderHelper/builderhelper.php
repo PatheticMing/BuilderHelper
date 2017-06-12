@@ -92,35 +92,43 @@ class builderhelper extends PluginBase implements Listener {
                         $z = intval($sender->getZ());
                         $sender->sendMessage($this->bh . C::AQUA . "You are at" . C::RED . $x . C::AQUA . "," . C::RED . $y .  C:: AQUA . "," . C::RED .  $z);
                         break;
-                    case "placed":
+                    case "stop":
                         if(isset($this->count)) {
-                        $sender->sendMessage($this->bh . C::GOLD . "You placed " . $this->count . "blocks!");
+                            $this->count = NULL;
+                            unset($this->pcount);
+                            unset($this->id);
+                            unset($this->checkid);
+                            $sender->sendMessage($this->bh . C::GOLD . "Stopped to count blocks!");
                         } else {
-                            $sender->sendMessage($this->bh . C::RED . "You haven't start to count yet!");
+                            $sender->sendMessage($this->bh . C::RED . "You haven't start to count blocks yet!");
                         }
                         break;
                     case "start":
                         if(count($args) < 2) {
-                            $sender->sendMessage($this->bh . C::RED . "Please enter how many blocks you want to place!");
+                            $sender->sendMessage($this->bh . C::RED . "Please enter number of blocks you want to place!");
                         } else {
+                            if(is_numeric($args[1])) {
                                 $this->pcount = $args[1];
                                 $this->checkid = 1;
                                 $sender->sendMessage($this->bh . C::GOLD . "Place the block to let me know the block id!");
+                            } else {
+                                $sender->sendMessage($this->bh . C::RED . "Please enter number of blocks you want to place!");
+                            }
                         }
                         break;
-                    NULL :
+                    case NULL :
                         $sender->sendMessage(C::YELLOW . "----------" . C::GREEN . "BuilderHelper" . C::YELLOW . "----------");
                         $sender->sendMessage(C::AQUA . "/bh : Show the help list");
                         $sender->sendMessage(C::AQUA . "/bh pos : get your position");
                         $sender->sendMessage(C::AQUA . "/bh start <counts> : Tell you to stop before you build < counts");
-                        $sender->sendMessage(C::AQUA . "/bh placed : Check how many blocks you placed");
+                        $sender->sendMessage(C::AQUA . "/bh stop : Stop counting blocks");
                         break;
                     default :
                         $sender->sendMessage(C::YELLOW . "----------" . C::GREEN . "BuilderHelper" . C::YELLOW . "----------");
                         $sender->sendMessage(C::AQUA . "/bh : Show the help list");
                         $sender->sendMessage(C::AQUA . "/bh pos : get your position");
                         $sender->sendMessage(C::AQUA . "/bh start <counts> : Tell you to stop before you build < counts");
-                        $sender->sendMessage(C::AQUA . "/bh placed : Check how many blocks you placed");
+                        $sender->sendMessage(C::AQUA . "/bh stop : Stop counting blocks");
                         break;
                 }
             } return true;
