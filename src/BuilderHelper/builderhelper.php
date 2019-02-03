@@ -82,9 +82,9 @@ class builderhelper extends PluginBase implements Listener {
         }
     }
     
-    public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
+    public function onCommand(CommandSender $sender, Command $command, $label, array $args) :bool {
         if ($sender instanceof Player) {
-            if(strtolower($command->getName() == "bh")) {
+            if(strtolower($command->getName() == "bh") && isset($args[0])) {
                 switch($args[0]) {
                     case "pos":
                         $x = intval($sender->getX());
@@ -92,28 +92,20 @@ class builderhelper extends PluginBase implements Listener {
                         $z = intval($sender->getZ());
                         $sender->sendMessage($this->bh . C::AQUA . "You are at" . C::RED . $x . C::AQUA . "," . C::RED . $y .  C:: AQUA . "," . C::RED .  $z);
                         break;
-                    case "stop":
+                    case "placed":
                         if(isset($this->count)) {
-                            $this->count = NULL;
-                            unset($this->pcount);
-                            unset($this->id);
-                            unset($this->checkid);
-                            $sender->sendMessage($this->bh . C::GOLD . "Stopped to count blocks!");
+                        $sender->sendMessage($this->bh . C::GOLD . "You placed " . $this->count . "blocks!");
                         } else {
-                            $sender->sendMessage($this->bh . C::RED . "You haven't start to count blocks yet!");
+                            $sender->sendMessage($this->bh . C::RED . "You haven't start to count yet!");
                         }
                         break;
                     case "start":
                         if(count($args) < 2) {
-                            $sender->sendMessage($this->bh . C::RED . "Please enter number of blocks you want to place!");
+                            $sender->sendMessage($this->bh . C::RED . "Please enter how many blocks you want to place!");
                         } else {
-                            if(is_numeric($args[1])) {
                                 $this->pcount = $args[1];
                                 $this->checkid = 1;
                                 $sender->sendMessage($this->bh . C::GOLD . "Place the block to let me know the block id!");
-                            } else {
-                                $sender->sendMessage($this->bh . C::RED . "Please enter number of blocks you want to place!");
-                            }
                         }
                         break;
                     case NULL :
@@ -121,19 +113,22 @@ class builderhelper extends PluginBase implements Listener {
                         $sender->sendMessage(C::AQUA . "/bh : Show the help list");
                         $sender->sendMessage(C::AQUA . "/bh pos : get your position");
                         $sender->sendMessage(C::AQUA . "/bh start <counts> : Tell you to stop before you build < counts");
-                        $sender->sendMessage(C::AQUA . "/bh stop : Stop counting blocks");
+                        $sender->sendMessage(C::AQUA . "/bh placed : Check how many blocks you placed");
                         break;
                     default :
                         $sender->sendMessage(C::YELLOW . "----------" . C::GREEN . "BuilderHelper" . C::YELLOW . "----------");
                         $sender->sendMessage(C::AQUA . "/bh : Show the help list");
                         $sender->sendMessage(C::AQUA . "/bh pos : get your position");
                         $sender->sendMessage(C::AQUA . "/bh start <counts> : Tell you to stop before you build < counts");
-                        $sender->sendMessage(C::AQUA . "/bh stop : Stop counting blocks");
+                        $sender->sendMessage(C::AQUA . "/bh placed : Check how many blocks you placed");
                         break;
                 }
-            } return true;
+				return true;
+            } else {
+				return false;
+			}
         } else {
-            $sender->sendMessage(C::RED . "CONSOLE don't build!!!XD");
+            $sender->sendMessage(C::RED . "CONSOLE doesn't build!!! XD");
             return true;
         }
     }
