@@ -14,10 +14,7 @@ use pocketmine\utils\TextFormat as C;
 class builderhelper extends PluginBase implements Listener {
     
     private $bh = C::AQUA . "[BuilderHelper] " . C::RESET;
-    private $pcount;
-    private $count;
-    private $id;
-    private $checkid;
+    private $pcount, $count, $id, $checkid;
 
     public function onEnable() {
         $this->getServer()->getPluginManager()->registerEvents($this,$this);
@@ -90,38 +87,27 @@ class builderhelper extends PluginBase implements Listener {
                         break;
                     case "start":
 						if(count($args) < 2) {
-								$sender->sendMessage($this->bh . C::RED . "Please enter how many blocks you want to place!");
+								$sender->sendMessage($this->bh . C::YELLOW . "Please enter how many blocks you want to place!");
 						} else {
-							if(!ctype_digit($args[1])){
-								$sender->sendMessage($this->bh . C::RED . "Please enter a positive integer! ");
-							} elseif($args[1] <= 0) {
-								$sender->sendMessage($this->bh . C::RED . "You won't need me if you are trying to place " . $args[1] . " block, right?");
-							} else{
-								$this->pcount = $args[1];
+							if($args[1] >= 1){
+								$this->pcount = intval($args[1]);
 								$this->checkid = true;
-								$sender->sendMessage($this->bh . C::GOLD . "Place down the block to let me know the block id!");
-							}
+								$sender->sendMessage($this->bh . C::GOLD . "Place down the block to let me know the block id!");								
+							} else {
+								$sender->sendMessage($this->bh . C::RED . "Please enter a non-zero and non-negative integer!");
+								}
 						}
                         break;
 					case "stop":
-						if(isset($this->count)) {
-							$this->count = NULL;
+						if(isset($this->pcount)) {
+							$this->count = $this->checkid = NULL;
 							unset($this->pcount);
 							unset($this->id);
-							unset($this->checkid);
-							$sender->sendMessage($this->bh . C::GOLD . "Stopped to count blocks!");
+							$sender->sendMessage($this->bh . C::GOLD . "Counting has been stopped");
 						} else {
-							$sender->sendMessage($this->bh . C::RED . "You haven't start to count yet!");
+							$sender->sendMessage($this->bh . C::RED . "You haven't start counting yet!");
 						}
 						break;
-                    case NULL :
-                        $sender->sendMessage(C::YELLOW . "----------" . C::GREEN . "BuilderHelper" . C::YELLOW . "----------");
-                        $sender->sendMessage(C::AQUA . "/bh : Show the help list");
-                        $sender->sendMessage(C::AQUA . "/bh pos : get your position");
-                        $sender->sendMessage(C::AQUA . "/bh start <counts> : Tell you to stop before you build < counts");
-						$sender->sendMessage(C::AQUA . "/bh stop : Stop counting blocks");
-                        $sender->sendMessage(C::AQUA . "/bh placed : Check how many blocks you placed");
-                        break;
                     default :
                         $sender->sendMessage(C::YELLOW . "----------" . C::GREEN . "BuilderHelper" . C::YELLOW . "----------");
                         $sender->sendMessage(C::AQUA . "/bh : Show the help list");
